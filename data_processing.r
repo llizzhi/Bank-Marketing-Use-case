@@ -80,7 +80,6 @@ data_eda$poutcome_type <- ifelse(data_eda$previous == 0, 'new',
 data_eda$poutcome_type <-  factor(data_eda$poutcome_type, levels = c('new', 'contacted_failure', 'contacted_success', 'contacted_nonexistent'))
 
 
-# modelling
 # xgboost prediction model
 ##step1: one-hot-encoding
 data_modelling <- data_tmp
@@ -100,11 +99,13 @@ for (col in binary_vars){
   data_modelling[, col] <- ifelse(data_modelling[, col] == 'yes', 1, 0)
 }
 
+# one hot encoding for categorical variable
 one_hot_vars <- c('job', 'marital', 'education', 'contact', 'month', 'day_of_week', 'poutcome')
 
 dmy <- dummyVars('~ .', data = data_modelling[, one_hot_vars])
 data_modelling <- cbind(data_modelling[, -which(names(data_modelling) %in% one_hot_vars)], data.frame(predict(dmy, newdata = data_modelling)))
 
+# split training set and testing set
 testing_prop <- 0.1
 testing_idx <- sample(1:nrow(data_modelling),size = round(nrow(data_modelling) * testing_prop),replace = FALSE)
 
